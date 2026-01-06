@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahve Sipariş - Ürünler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            background-image: 
+                radial-gradient(at 20% 30%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+            padding: 20px;
+            min-height: 100vh;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .header {
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) translateZ(0);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .products-section {
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 24px;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            position: relative;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px) translateZ(0);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 64px;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .product-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .product-price {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .product-info {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #86efac;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .stock-badge.low {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: rgba(251, 146, 60, 0.4);
+            color: #fdba74;
+        }
+
+        .stock-badge.out {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        /* Sepet */
+        .cart-section {
+            width: 380px;
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-header h2 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cart-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .cart-item-price {
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+
+        .cart-item-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.15s ease;
+        }
+
+        .quantity-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.6);
+        }
+
+        .cart-total {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 16px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .checkout-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(18, 18, 23, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.15s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .modal-price {
+            font-size: 36px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .size-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .size-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .size-option:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .size-option.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .size-name {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .size-multiplier {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-input {
+            width: 80px;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .quantity-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .extras-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .extra-option {
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .extra-option:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .extra-option.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .dessert-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 16px;
+            color: rgba(211, 24, 24, 0.95);
+        }
+
+        .dessert-select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #201d27 0%, #201d27 100%);
+            color: rgb(223, 101, 19);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>☕ Kahve Sipariş Sistemi</h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="location.href='/customer/profile'">👤 Profil</button>
+            <button class="btn btn-primary" onclick="location.href='/auth/logout'">Çıkış Yap</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Ürünler Bölümü -->
+        <div class="products-section">
+            <h2 class="section-title">Kahveler</h2>
+            <div class="products-grid" id="coffeesGrid">
+                <div th:each="coffee : ${coffees}" class="product-card" th:onclick="|openProductModal(${coffee.id}, 'coffee')|">
+                    <div class="product-image">☕</div>
+                    <div class="product-name" th:text="${coffee.name}">Latte</div>
+                    <div class="product-price" th:text="${'₺' + #numbers.formatDecimal(coffee.price, 1, 2)}">₺50.00</div>
+                    <div class="product-info" th:if="${coffee.origin}" th:text="'Menşei: ' + ${coffee.origin}">Menşei: Brezilya</div>
+                    <div class="product-info" th:if="${coffee.roastLevel}" th:text="'Kavurma: ' + ${coffee.roastLevel}">Kavurma: Medium</div>
+                    <div class="stock-badge" 
+                         th:classappend="${coffee.stock > 10 ? '' : (coffee.stock > 0 ? 'low' : 'out')}"
+                         th:text="${coffee.stock > 0 ? (coffee.stock + ' adet') : 'Tükendi'}">10 adet</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Tatlılar</h2>
+            <div class="products-grid" id="dessertsGrid">
+                <div th:each="dessert : ${desserts}" class="product-card" th:onclick="|openProductModal(${dessert.id}, 'dessert')|">
+                    <div class="product-image">🍰</div>
+                    <div class="product-name" th:text="${dessert.name}">Cheesecake</div>
+                    <div class="product-price" th:text="${'₺' + #numbers.formatDecimal(dessert.price, 1, 2)}">₺40.00</div>
+                    <div class="product-info" th:if="${dessert.isGlutenFree}" style="color: #4caf50;">✓ Glutensiz</div>
+                    <div class="product-info" th:if="${dessert.calories}" th:text="'Kalori: ' + ${dessert.calories}">Kalori: 250</div>
+                    <div class="stock-badge" 
+                         th:classappend="${dessert.stock > 10 ? '' : (dessert.stock > 0 ? 'low' : 'out')}"
+                         th:text="${dessert.stock > 0 ? (dessert.stock + ' adet') : 'Tükendi'}">5 adet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sepet Bölümü -->
+        <div class="cart-section">
+            <div class="cart-header">
+                <h2>🛒 Sepetim</h2>
+                <span id="cartItemCount">0</span>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">Sepetiniz boş</div>
+            </div>
+            <div class="cart-total" id="cartTotal" style="display: none;">
+                <div class="total-row">
+                    <span>Toplam:</span>
+                    <span class="total-amount" id="totalAmount">₺0.00</span>
+                </div>
+                <button class="checkout-btn" onclick="checkout()">Siparişi Tamamla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ürün Detay Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProductModal()">×</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalProductName">Latte</h2>
+                <div class="modal-price" id="modalProductPrice">₺50.00</div>
+            </div>
+
+            <form id="productForm">
+                <input type="hidden" id="modalProductId">
+                <input type="hidden" id="modalProductType">
+                <input type="hidden" id="modalBasePrice">
+
+                <div class="form-group">
+                    <label class="form-label">Boyut Seçin</label>
+                    <div class="size-options">
+                        <div class="size-option" data-size="SMALL" data-multiplier="1.0" onclick="selectSize(this, 'SMALL', 1.0)">
+                            <div class="size-name">Küçük</div>
+                            <div class="size-multiplier">1.0x</div>
+                        </div>
+                        <div class="size-option" data-size="MEDIUM" data-multiplier="1.2" onclick="selectSize(this, 'MEDIUM', 1.2)">
+                            <div class="size-name">Orta</div>
+                            <div class="size-multiplier">1.2x</div>
+                        </div>
+                        <div class="size-option" data-size="LARGE" data-multiplier="1.5" onclick="selectSize(this, 'LARGE', 1.5)">
+                            <div class="size-name">Büyük</div>
+                            <div class="size-multiplier">1.5x</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="extrasGroup" style="display: none;">
+                    <label class="form-label">Ekstra Malzemeler</label>
+                    <div class="extras-grid">
+                        <div class="extra-option" onclick="toggleExtra(this, 'Süt')">Süt</div>
+                        <div class="extra-option" onclick="toggleExtra(this, 'Krema')">Krema</div>
+                        <div class="extra-option" onclick="toggleExtra(this, 'Şeker')">Şeker</div>
+                        <div class="extra-option" onclick="toggleExtra(this, 'Vanilya')">Vanilya</div>
+                        <div class="extra-option" onclick="toggleExtra(this, 'Karamel')">Karamel</div>
+                        <div class="extra-option" onclick="toggleExtra(this, 'Fındık')">Fındık</div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="dessertGroup" style="display: none;">
+                    <label class="form-label">Tatlı Seçin</label>
+                    <select class="dessert-select" id="selectedDessert">
+                        <option value="">Tatlılar</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Adet</label>
+                    <div class="quantity-selector">
+                        <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                        <input type="number" class="quantity-input" id="productQuantity" value="1" min="1" onchange="updatePrice()">
+                        <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                    </div>
+                </div>
+
+                <button type="button" class="add-to-cart-btn" onclick="addToCart()">Sepete Ekle</button>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Thymeleaf ile verileri JavaScript'e aktar
+        const coffees = /*[[${coffees}]]*/ [];
+        const desserts = /*[[${desserts}]]*/ [];
+        
+        // Debug: Verilerin yüklenmesini kontrol et
+        console.log('Kahveler:', coffees);
+        console.log('Tatlılar:', desserts);
+        
+        let cart = [];
+        let selectedSize = 'MEDIUM';
+        let sizeMultiplier = 1.2;
+        let selectedExtras = [];
+        let selectedDessert = null;
+        let currentProduct = null;
+
+        function openProductModal(productId, productType) {
+            let product;
+            productId = Number(productId); // Sayıya çevir
+            if (productType === 'coffee') {
+                product = coffees.find(c => c.id === productId);
+                document.getElementById('extrasGroup').style.display = 'block';
+                document.getElementById('dessertGroup').style.display = 'block';
+            } else {
+                product = desserts.find(d => d.id === productId);
+                document.getElementById('extrasGroup').style.display = 'none';
+                document.getElementById('dessertGroup').style.display = 'none';
+            }
+
+            if (!product) {
+                console.error('Ürün bulunamadı:', { productId, productType, coffees, desserts });
+                return;
+            }
+
+            currentProduct = product;
+            document.getElementById('modalProductId').value = product.id;
+            document.getElementById('modalProductType').value = productType;
+            document.getElementById('modalBasePrice').value = product.price;
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalProductPrice').textContent = '₺' + product.price.toFixed(2);
+            document.getElementById('productQuantity').value = 1;
+
+            // Boyut seçimini sıfırla
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.size-option[data-size="MEDIUM"]').classList.add('selected');
+            selectedSize = 'MEDIUM';
+            sizeMultiplier = 1.2;
+
+            // Ekstra malzemeleri sıfırla
+            selectedExtras = [];
+            document.querySelectorAll('.extra-option').forEach(opt => opt.classList.remove('selected'));
+
+            // Tatlı seçimini sıfırla
+            selectedDessert = null;
+            document.getElementById('selectedDessert').value = '';
+
+            // Tatlı dropdown'unu doldur
+            const dessertSelect = document.getElementById('selectedDessert');
+            dessertSelect.innerHTML = '<option value="">Tatlılar</option>';
+            console.log('Tatlılar:', desserts);
+            if (desserts && desserts.length > 0) {
+                desserts.forEach(dessert => {
+                    const option = document.createElement('option');
+                    option.value = dessert.id;
+                    option.textContent = dessert.name + ' - ₺' + dessert.price.toFixed(2);
+                    dessertSelect.appendChild(option);
+                });
+            }
+
+            updatePrice();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function selectSize(element, size, multiplier) {
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSize = size;
+            sizeMultiplier = multiplier;
+            updatePrice();
+        }
+
+        function toggleExtra(element, extraName) {
+            element.classList.toggle('selected');
+            if (element.classList.contains('selected')) {
+                selectedExtras.push(extraName);
+            } else {
+                selectedExtras = selectedExtras.filter(e => e !== extraName);
+            }
+            updatePrice();
+        }
+
+        function changeQuantity(delta) {
+            const input = document.getElementById('productQuantity');
+            const newValue = parseInt(input.value) + delta;
+            if (newValue >= 1) {
+                input.value = newValue;
+                updatePrice();
+            }
+        }
+
+        function updatePrice() {
+            if (!currentProduct) return;
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            const basePrice = parseFloat(document.getElementById('modalBasePrice').value);
+            let totalPrice = basePrice * sizeMultiplier * quantity;
+
+            // Ekstra malzeme fiyatı (her biri +2₺)
+            totalPrice += selectedExtras.length * 2 * quantity;
+
+            // Tatlı fiyatı
+            if (selectedDessert) {
+                const dessert = desserts.find(d => d.id == selectedDessert);
+                if (dessert) {
+                    totalPrice += dessert.price * quantity;
+                }
+            }
+
+            document.getElementById('modalProductPrice').textContent = '₺' + totalPrice.toFixed(2);
+        }
+
+        document.getElementById('selectedDessert').addEventListener('change', function() {
+            selectedDessert = this.value;
+            updatePrice();
+        });
+
+        function addToCart() {
+            if (!currentProduct) return;
+
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            const basePrice = parseFloat(document.getElementById('modalBasePrice').value);
+            let itemPrice = basePrice * sizeMultiplier * quantity;
+
+            // Ekstra malzeme fiyatı
+            itemPrice += selectedExtras.length * 2 * quantity;
+
+            // Tatlı fiyatı
+            let dessertInfo = null;
+            if (selectedDessert) {
+                const dessert = desserts.find(d => d.id == selectedDessert);
+                if (dessert) {
+                    itemPrice += dessert.price * quantity;
+                    dessertInfo = { id: dessert.id, name: dessert.name, price: dessert.price };
+                }
+            }
+
+            const cartItem = {
+                id: Date.now(),
+                productId: currentProduct.id,
+                productName: currentProduct.name,
+                productType: document.getElementById('modalProductType').value,
+                size: selectedSize,
+                quantity: quantity,
+                price: itemPrice,
+                extras: [...selectedExtras],
+                dessert: dessertInfo
+            };
+
+            cart.push(cartItem);
+            updateCart();
+            closeProductModal();
+        }
+
+        function updateCart() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartTotalDiv = document.getElementById('cartTotal');
+            const cartItemCount = document.getElementById('cartItemCount');
+            const totalAmount = document.getElementById('totalAmount');
+
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<div class="empty-cart">Sepetiniz boş</div>';
+                cartTotalDiv.style.display = 'none';
+                cartItemCount.textContent = '0';
+                return;
+            }
+
+            cartItemCount.textContent = cart.length;
+            cartTotalDiv.style.display = 'block';
+
+            let total = 0;
+            cartItemsDiv.innerHTML = '';
+
+            cart.forEach(item => {
+                total += item.price;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <div class="cart-item-header">
+                        <span class="cart-item-name">${item.productName}</span>
+                        <span class="cart-item-price">₺${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="cart-item-details">Boyut: ${item.size === 'SMALL' ? 'Küçük' : item.size === 'MEDIUM' ? 'Orta' : 'Büyük'}</div>
+                    ${item.extras.length > 0 ? `<div class="cart-item-details">Ekstra: ${item.extras.join(', ')}</div>` : ''}
+                    ${item.dessert ? `<div class="cart-item-details">Tatlı: ${item.dessert.name}</div>` : ''}
+                    <div class="cart-item-actions">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateCartItemQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateCartItemQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart(${item.id})">Sil</button>
+                    </div>
+                `;
+                cartItemsDiv.appendChild(itemDiv);
+            });
+
+            totalAmount.textContent = '₺' + total.toFixed(2);
+        }
+
+        function updateCartItemQuantity(itemId, delta) {
+            const item = cart.find(i => i.id === itemId);
+            if (!item) return;
+
+            const newQuantity = item.quantity + delta;
+            if (newQuantity < 1) {
+                removeFromCart(itemId);
+                return;
+            }
+
+            // Fiyatı yeniden hesapla
+            const basePrice = item.price / (item.quantity * (item.size === 'SMALL' ? 1.0 : item.size === 'MEDIUM' ? 1.2 : 1.5));
+            const sizeMultiplier = item.size === 'SMALL' ? 1.0 : item.size === 'MEDIUM' ? 1.2 : 1.5;
+            const extrasPrice = item.extras.length * 2;
+            const dessertPrice = item.dessert ? item.dessert.price : 0;
+            
+            item.quantity = newQuantity;
+            item.price = (basePrice * sizeMultiplier + extrasPrice + dessertPrice) * newQuantity;
+
+            updateCart();
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(i => i.id !== itemId);
+            updateCart();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Sepetiniz boş!');
+                return;
+            }
+
+            // Sepeti localStorage'a kaydet ve checkout sayfasına yönlendir
+            localStorage.setItem('cart', JSON.stringify(cart));
+            // TODO: userId'yi authentication'dan al
+            window.location.href = '/customer/checkout?userId=1';
+        }
+
+        // Modal dışına tıklayınca kapat
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProductModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

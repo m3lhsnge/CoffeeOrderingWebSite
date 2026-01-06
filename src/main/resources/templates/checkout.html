@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme - Kahve Sipariş</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .checkout-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .address-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .address-option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .address-option:hover {
+            border-color: #667eea;
+        }
+
+        .address-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .address-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .address-details {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .new-address-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .new-address-form h4 {
+            margin-top: 0;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .new-address-form input,
+        .new-address-form select,
+        .new-address-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-family: Arial;
+            font-size: 14px;
+        }
+
+        .new-address-form input:focus,
+        .new-address-form select:focus,
+        .new-address-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .new-address-form button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .new-address-form button:hover {
+            background: #764ba2;
+        }
+
+        .new-address-form button.cancel {
+            background: #ddd;
+            color: #333;
+        }
+
+        .new-address-form button.cancel:hover {
+            background: #ccc;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .payment-option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-option:hover {
+            border-color: #667eea;
+        }
+
+        .payment-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .payment-icon {
+            font-size: 32px;
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .payment-desc {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .order-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .order-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-item-price {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .order-item-details {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .order-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            background: #f0f0f0;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>💳 Ödeme</h1>
+    </div>
+
+    <div class="container">
+        <div class="checkout-section">
+            <a href="/customer/products" class="back-btn">← Geri Dön</a>
+
+            <!-- Hidden User ID -->
+            <input type="hidden" name="userId" th:value="${user?.id ?: 1}">
+
+            <!-- Adres Seçimi -->
+            <h2 class="section-title">Teslimat Adresi</h2>
+            <div class="form-group">
+                <div class="address-list" id="addressList">
+                    <div th:each="address : ${addresses}" class="address-option"
+                        th:onclick="'selectAddress(' + ${address.id} + ')'" th:data-id="${address.id}">
+                        <div class="address-title" th:text="${address.addressType}">Ev</div>
+                        <div class="address-details">
+                            <div th:text="${address.street}">Sokak</div>
+                            <div th:text="${address.district + ', ' + address.city + ' ' + address.postalCode}">
+                                İstanbul, Kadıköy</div>
+                            <div th:text="${address.openAddress}">Atatürk Mah. Örnek Sok. No:1</div>
+                        </div>
+                    </div>
+                    <div class="address-option" onclick="selectNewAddress()"
+                        style="border-style: dashed; text-align: center; color: #667eea;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">+</div>
+                        <div>Yeni Adres Ekle</div>
+                    </div>
+                </div>
+
+                <!-- Yeni Adres Formu -->
+                <div class="new-address-form" id="newAddressForm" style="display: none;">
+                    <h4>Yeni Adres Ekle</h4>
+                    <select id="newAddressType" required>
+                        <option value="">Adres Türü Seçiniz</option>
+                        <option value="Ev">🏠 Ev</option>
+                        <option value="İş">💼 İş</option>
+                        <option value="Diğer">📍 Diğer</option>
+                    </select>
+                    <input type="text" id="newStreet" placeholder="Cadde/Sokak (Ör: Atatürk Cad. No:42)" required>
+                    <input type="text" id="newCity" placeholder="Şehir" required>
+                    <input type="text" id="newDistrict" placeholder="İlçe" required>
+                    <input type="text" id="newPostalCode" placeholder="Posta Kodu" required>
+                    <textarea id="newOpenAddress" placeholder="Detaylı Adres (Daire numarası, kapı numarası vb.)"
+                        required style="min-height: 60px;"></textarea>
+                    <button onclick="saveNewAddress()">✓ Adresi Kaydet</button>
+                    <button class="cancel" onclick="toggleNewAddressForm()">✕ İptal</button>
+                </div>
+            </div>
+
+            <!-- Ödeme Yöntemi -->
+            <h2 class="section-title">Ödeme Yöntemi</h2>
+            <div class="form-group">
+                <div class="payment-methods">
+                    <div class="payment-option" onclick="selectPayment('BANK')" data-payment="BANK">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-info">
+                            <div class="payment-name">Banka / Kredi Kartı</div>
+                            <div class="payment-desc">Güvenli ödeme (Sunum için simüle edilmiş)</div>
+                        </div>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('CASH_ON_DELIVERY')"
+                        data-payment="CASH_ON_DELIVERY">
+                        <div class="payment-icon">💰</div>
+                        <div class="payment-info">
+                            <div class="payment-name">Kapıda Ödeme</div>
+                            <div class="payment-desc">Teslimat sırasında nakit ödeme</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sipariş Özeti -->
+        <div class="order-summary">
+            <h2 class="section-title">Sipariş Özeti</h2>
+            <div id="orderItems"></div>
+            <div class="order-total">
+                <div class="total-row">
+                    <span>Toplam:</span>
+                    <span class="total-amount" id="totalAmount">₺0.00</span>
+                </div>
+                <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>Siparişi Onayla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let selectedAddressId = null;
+        let selectedPaymentMethod = null;
+
+        // Sayfa yüklendiğinde sepeti localStorage'dan al
+        window.onload = function () {
+            const cartData = localStorage.getItem('cart');
+            if (cartData) {
+                cart = JSON.parse(cartData);
+                updateOrderSummary();
+            } else {
+                alert('Sepetiniz boş!');
+                window.location.href = '/customer/products';
+            }
+        };
+
+        function selectAddress(addressId) {
+            selectedAddressId = addressId;
+            document.querySelectorAll('.address-option').forEach(opt => {
+                if (opt.dataset.id == addressId) {
+                    opt.classList.add('selected');
+                } else if (opt.dataset.id) { // Yeni adres formu hariç
+                    opt.classList.remove('selected');
+                }
+            });
+            document.getElementById('newAddressForm').style.display = 'none';
+            checkSubmitButton();
+        }
+
+        function selectNewAddress() {
+            selectedAddressId = null;
+            document.querySelectorAll('.address-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            toggleNewAddressForm();
+            checkSubmitButton();
+        }
+
+        function toggleNewAddressForm() {
+            const form = document.getElementById('newAddressForm');
+            const isHidden = form.style.display === 'none';
+            form.style.display = isHidden ? 'block' : 'none';
+        }
+
+        async function saveNewAddress() {
+            const addressType = document.getElementById('newAddressType').value;
+            const street = document.getElementById('newStreet').value;
+            const city = document.getElementById('newCity').value;
+            const district = document.getElementById('newDistrict').value;
+            const postalCode = document.getElementById('newPostalCode').value;
+            const openAddress = document.getElementById('newOpenAddress').value;
+
+
+
+            if (!addressType || !street || !city || !district || !postalCode || !openAddress) {
+                alert('Lütfen tüm alanları doldurunuz!');
+                return;
+            }
+
+            try {
+                // Yeni API endpoint'ini kullanıyoruz
+                const response = await fetch('/customer/api/add-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        addressType: addressType,
+                        street: street,
+                        city: city,
+                        district: district,
+                        postalCode: postalCode,
+                        openAddress: openAddress
+                    })
+                });
+
+                if (response.ok) {
+                    // Sunucudan dönen gerçek kayıtlı adresi al (ID dahil)
+                    const savedAddress = await response.json();
+
+                    alert('✅ Adres başarıyla eklendi!');
+
+                    // Listeye ekle (gerçek ID ile)
+                    addAddressToList(savedAddress);
+
+                    // Formu sıfırla
+                    document.getElementById('newAddressType').value = '';
+                    document.getElementById('newStreet').value = '';
+                    document.getElementById('newCity').value = '';
+                    document.getElementById('newDistrict').value = '';
+                    document.getElementById('newPostalCode').value = '';
+                    document.getElementById('newOpenAddress').value = '';
+
+                    // Formu gizle
+                    const form = document.querySelector('.new-address-form');
+                    if (form) form.style.display = 'none';
+
+                    // Yeni adresi otomatik seç
+                    selectAddress(savedAddress.id);
+                } else {
+                    const errorText = await response.text();
+                    alert('❌ Adres eklenirken hata oluştu: ' + errorText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Adres eklenirken hata oluştu: ' + error.message);
+            }
+        }
+
+        function addAddressToList(address) {
+            const addressList = document.getElementById('addressList');
+            const addressDiv = document.createElement('div');
+            addressDiv.className = 'address-option';
+            addressDiv.dataset.id = address.id;
+            addressDiv.onclick = () => selectAddress(address.id);
+            addressDiv.innerHTML = `
+                <div class="address-title">${address.addressType}</div>
+                <div class="address-details">
+                    <div>${address.street}</div>
+                    <div>${address.district}, ${address.city} ${address.postalCode}</div>
+                    <div>${address.openAddress}</div>
+                </div>
+            `;
+            addressList.appendChild(addressDiv);
+        }
+
+        function selectPayment(paymentMethod) {
+            selectedPaymentMethod = paymentMethod;
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                if (opt.dataset.payment === paymentMethod) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            checkSubmitButton();
+        }
+
+        function checkSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            if (selectedAddressId && selectedPaymentMethod) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        function updateOrderSummary() {
+            const orderItemsDiv = document.getElementById('orderItems');
+            const totalAmount = document.getElementById('totalAmount');
+
+            if (cart.length === 0) {
+                orderItemsDiv.innerHTML = '<div>Sepetiniz boş</div>';
+                return;
+            }
+
+            let total = 0;
+            orderItemsDiv.innerHTML = '';
+
+            cart.forEach(item => {
+                total += item.price;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'order-item';
+                itemDiv.innerHTML = `
+                    <div class="order-item-header">
+                        <span class="order-item-name">${item.productName}</span>
+                        <span class="order-item-price">₺${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="order-item-details">Boyut: ${item.size === 'SMALL' ? 'Küçük' : item.size === 'MEDIUM' ? 'Orta' : 'Büyük'} × ${item.quantity}</div>
+                    ${item.extras.length > 0 ? `<div class="order-item-details">Ekstra: ${item.extras.join(', ')}</div>` : ''}
+                    ${item.dessert ? `<div class="order-item-details">Tatlı: ${item.dessert.name}</div>` : ''}
+                `;
+                orderItemsDiv.appendChild(itemDiv);
+            });
+
+            totalAmount.textContent = '₺' + total.toFixed(2);
+        }
+
+        function addNewAddress() {
+            toggleNewAddressForm();
+        }
+
+        async function submitOrder() {
+            if (!selectedAddressId || !selectedPaymentMethod) {
+                alert('Lütfen adres ve ödeme yöntemi seçin!');
+                return;
+            }
+
+            try {
+                // Sepet öğelerini basit format'ta gönder (Product nesnesi yerine sadece ID)
+                const orderItems = cart.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    selectedSize: item.size,
+                    subTotal: item.price
+                }));
+
+                // Sayfadan userId'yi al
+                const userId = document.querySelector('input[name="userId"]').value;
+
+                // Order objesi oluştur
+                const order = {
+                    user: { id: parseInt(userId) },
+                    shippingAddress: { id: selectedAddressId },
+                    paymentMethod: selectedPaymentMethod,
+                    items: orderItems,
+                    status: 'PREPARING'
+                };
+
+                console.log('Gönderilen sipariş:', JSON.stringify(order, null, 2));
+
+                const response = await fetch('/customer/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(order)
+                });
+
+                const responseText = await response.text();
+                console.log('Sunucu yanıtı:', responseText);
+
+                if (response.ok) {
+                    try {
+                        const createdOrder = JSON.parse(responseText);
+                        localStorage.removeItem('cart');
+                        alert('✅ Siparişiniz başarıyla oluşturuldu!\n\nSipariş numaranız: #' + createdOrder.id + '\nDurum: Hazırlanıyor');
+                        window.location.href = '/customer/products';
+                    } catch (e) {
+                        console.error('JSON parse hatası:', e);
+                        localStorage.removeItem('cart');
+                        alert('✅ Siparişiniz başarıyla oluşturuldu!\nÜrün listesine dönüyorsunuz...');
+                        window.location.href = '/customer/products';
+                    }
+                } else {
+                    alert('❌ Sipariş oluşturulurken hata oluştu:\n' + responseText);
+                    console.error('Hata detayı:', responseText);
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('❌ Sipariş oluşturulurken hata oluştu:\n' + error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

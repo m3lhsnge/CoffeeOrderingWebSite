@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Sipariş Yönetimi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .orders-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .orders-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-preparing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-out-for-delivery {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-received {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-approve:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+            margin-left: 5px;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        .btn-cancel:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .order-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>👨‍💼 Admin Panel - Sipariş Yönetimi</h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="location.href='/admin/dashboard'">← Dashboard</button>
+            <button class="btn btn-primary" onclick="location.href='/auth/logout'">Çıkış Yap</button>
+        </div>
+    </div>
+
+    <div class="orders-container">
+        <h2 class="section-title">Tüm Siparişler</h2>
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Sipariş No</th>
+                    <th>Müşteri</th>
+                    <th>Tarih</th>
+                    <th>Tutar</th>
+                    <th>Ödeme</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr th:each="order : ${orders}">
+                    <td>#<span th:text="${order.id}">1</span></td>
+                    <td>
+                        <div th:text="${order.user.name + ' ' + order.user.surname}">Melih Yılmaz</div>
+                        <div class="order-details" th:text="${order.user.email}">melih@example.com</div>
+                    </td>
+                    <td th:text="${#dates.format(order.createdDate, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</td>
+                    <td><strong th:text="${'₺' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₺150.00</strong></td>
+                    <td>
+                        <span th:if="${order.paymentMethod == T(com.example.demo.model.PaymentMethod).BANK}">💳
+                            Banka</span>
+                        <span
+                            th:if="${order.paymentMethod == T(com.example.demo.model.PaymentMethod).CASH_ON_DELIVERY}">💰
+                            Kapıda</span>
+                    </td>
+                    <td>
+                        <span class="status-badge"
+                            th:classappend="${order.status == T(com.example.demo.model.OrderStatus).PREPARING ? 'status-preparing' : 
+                                             (order.status == T(com.example.demo.model.OrderStatus).OUT_FOR_DELIVERY ? 'status-out-for-delivery' : 
+                                             (order.status == T(com.example.demo.model.OrderStatus).DELIVERED ? 'status-delivered' : 
+                                             (order.status == T(com.example.demo.model.OrderStatus).CANCELLED ? 'status-cancelled' : 'status-received')))}"
+                            th:text="${order.status == T(com.example.demo.model.OrderStatus).PREPARING ? 'Hazırlanıyor' : 
+                                       (order.status == T(com.example.demo.model.OrderStatus).OUT_FOR_DELIVERY ? 'Yolda' : 
+                                       (order.status == T(com.example.demo.model.OrderStatus).DELIVERED ? 'Teslim Edildi' : 
+                                       (order.status == T(com.example.demo.model.OrderStatus).CANCELLED ? 'İptal Edildi' : 'Alındı')))}">
+                            Hazırlanıyor
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-approve" th:onclick="'approveOrder(' + ${order.id} + ')'"
+                            th:disabled="${order.status != T(com.example.demo.model.OrderStatus).PREPARING}"
+                            th:text="${order.status == T(com.example.demo.model.OrderStatus).PREPARING ? 'Onayla' : 'Onaylandı'}">
+                            Onayla
+                        </button>
+                        <button class="action-btn btn-cancel" th:onclick="'cancelOrder(' + ${order.id} + ')'"
+                            th:disabled="${order.status != T(com.example.demo.model.OrderStatus).PREPARING}"
+                            th:if="${order.status == T(com.example.demo.model.OrderStatus).PREPARING}">
+                            İptal
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function approveOrder(orderId) {
+            if (!confirm('Bu siparişi onaylayıp yolda durumuna geçirmek istediğinize emin misiniz?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/orders/${orderId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Sipariş onaylandı! 15 saniye sonra otomatik olarak teslim edildi durumuna geçecek.');
+                    // Sayfayı yenile
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Sipariş onaylanırken bir hata oluştu!');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Sipariş onaylanırken bir hata oluştu!');
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm('Bu siparişi iptal etmek istediğinize emin misiniz? Stoklar geri yüklenecek.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/orders/${orderId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Sipariş iptal edildi! Stoklar geri yüklendi.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    const error = await response.text();
+                    alert('Sipariş iptal edilirken hata oluştu: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Sipariş iptal edilirken bir hata oluştu!');
+            }
+        }
+
+        // Her 5 saniyede bir sayfayı otomatik yenile (durum güncellemeleri için)
+        setInterval(() => {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+
+</html>

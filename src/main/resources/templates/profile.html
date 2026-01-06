@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Kahve Sipariş</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            background-image: 
+                radial-gradient(at 20% 30%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            padding: 20px;
+            min-height: 100vh;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .header {
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #8b5cf6;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #8b5cf6;
+        }
+
+        .profile-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.95);
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group input:disabled {
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: rgba(139, 92, 246, 0.9);
+        }
+
+        .addresses-list {
+            margin-top: 20px;
+        }
+
+        .address-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .address-item p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .address-item strong {
+            color: #8b5cf6;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .message {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-card {
+                padding: 24px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>☕ Kahve Sipariş Sistemi</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="location.href='/customer/products'">← Geri Dön</button>
+            <button class="btn btn-secondary" onclick="location.href='/auth/logout'">Çıkış Yap</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-card">
+            <!-- Profil Başlığı -->
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <h2 th:text="${user.name + ' ' + user.surname}">Kullanıcı Adı</h2>
+                <p th:text="${user.email}">email@example.com</p>
+            </div>
+
+            <!-- Başarı/Hata Mesajları -->
+            <div th:if="${success}" class="message success-message" th:text="${success}"></div>
+            <div th:if="${error}" class="message error-message" th:text="${error}"></div>
+
+            <!-- Kişisel Bilgiler Formu -->
+            <form th:action="@{/customer/profile/update}" method="post">
+                <input type="hidden" name="userId" th:value="${user.id}">
+                <input type="hidden" name="email" th:value="${user.email}">
+
+                <div class="form-section">
+                    <h3>Kişisel Bilgiler</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Ad</label>
+                            <input type="text" id="name" name="name" th:value="${user.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="surname">Soyad</label>
+                            <input type="text" id="surname" name="surname" th:value="${user.surname}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-posta (Değiştirilemez)</label>
+                        <input type="email" id="email" th:value="${user.email}" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Rol</label>
+                        <input type="text" id="role" th:value="${user.role}" disabled>
+                    </div>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">💾 Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+
+            <!-- Sipariş Geçmişi -->
+            <div class="form-section">
+                <h3>📦 Sipariş Geçmişim</h3>
+                <div th:if="${orders != null and !orders.empty}">
+                    <style>
+                        .order-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 15px;
+                        }
+                        .order-table th, .order-table td {
+                            padding: 12px;
+                            text-align: left;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                        }
+                        .order-table th {
+                            background: rgba(139, 92, 246, 0.1);
+                            color: #8b5cf6;
+                        }
+                        .order-table tr:hover {
+                            background: rgba(255, 255, 255, 0.03);
+                        }
+                        .status-badge {
+                            display: inline-block;
+                            padding: 4px 10px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+                        .status-pending { background: rgba(250, 204, 21, 0.2); color: #fcd34d; }
+                        .status-preparing { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+                        .status-delivering { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+                        .status-delivered { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+                        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+                    </style>
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Sipariş No</th>
+                                <th>Tarih</th>
+                                <th>Tutar</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${orders}">
+                                <td th:text="'#' + ${order.id}">#123</td>
+                                <td th:text="${#dates.format(order.createdDate, 'dd.MM.yyyy HH:mm')}">01.01.2023 12:00</td>
+                                <td th:text="'₺' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">₺150.00</td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="'status-' + ${#strings.toLowerCase(order.status)}"
+                                          th:text="${order.status}">
+                                        TESLİM EDİLDİ
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${orders == null or orders.empty}" class="info-box">
+                    ℹ️ Henüz verilmiş bir siparişiniz bulunmamaktadır.
+                </div>
+            </div>
+
+            <!-- Adres Ekleme Formu -->
+            <form th:action="@{/customer/profile/add-address}" method="post" class="form-section">
+                <input type="hidden" name="userId" th:value="${user.id}">
+                <h3>Yeni Adres Ekle</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addressType">Adres Türü</label>
+                        <select id="addressType" name="addressType" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Ev">🏠 Ev</option>
+                            <option value="İş">💼 İş</option>
+                            <option value="Diğer">📍 Diğer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="street">Cadde/Sokak</label>
+                    <input type="text" id="street" name="street" placeholder="Ör: Atatürk Cad. No:42" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">Şehir</label>
+                        <input type="text" id="city" name="city" placeholder="Ör: İstanbul" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="district">İlçe</label>
+                        <input type="text" id="district" name="district" placeholder="Ör: Beşiktaş" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postalCode">Posta Kodu</label>
+                    <input type="text" id="postalCode" name="postalCode" placeholder="Ör: 34000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="openAddress">Detaylı Adres</label>
+                    <textarea id="openAddress" name="openAddress" placeholder="Daire numarası, kapı numarası vb." required style="min-height: 80px;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">➕ Adres Ekle</button>
+            </form>
+
+            <!-- Kayıtlı Adresler -->
+            <div class="form-section" th:if="${user.addresses != null and user.addresses.size() > 0}">
+                <h3>Kayıtlı Adresler</h3>
+                <div class="addresses-list">
+                    <div th:each="address : ${user.addresses}" class="address-item">
+                        <div class="address-content">
+                            <p><strong>Adres Türü:</strong> <span th:text="${address.addressType}">Ev</span></p>
+                            <p><strong>Adres:</strong> <span th:text="${address.street}">Sokak</span></p>
+                            <p><strong>Şehir:</strong> <span th:text="${address.city}">Şehir</span> - 
+                               <strong>İlçe:</strong> <span th:text="${address.district}">İlçe</span> - 
+                               <strong>Posta Kodu:</strong> <span th:text="${address.postalCode}">12345</span></p>
+                            <p><strong>Detaylı Adres:</strong> <span th:text="${address.openAddress}">Detay</span></p>
+                        </div>
+                        
+                        <!-- İşlem Butonları -->
+                        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                            <button class="btn btn-secondary" 
+                                    style="padding: 8px 16px; font-size: 13px;"
+                                    type="button"
+                                    th:onclick="'toggleEditForm(' + ${address.id} + ')'">
+                                ✏️ Düzenle
+                            </button>
+                            
+                            <form th:action="@{/customer/profile/delete-address}" method="post" style="display: inline;" 
+                                  onsubmit="return confirm('Bu adresi silmek istediğinize emin misiniz?');">
+                                <input type="hidden" name="userId" th:value="${user.id}">
+                                <input type="hidden" name="addressId" th:value="${address.id}">
+                                <button type="submit" class="btn btn-danger" 
+                                        style="padding: 8px 16px; font-size: 13px;">
+                                    🗑️ Sil
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Gizli Güncelleme Formu -->
+                        <div th:id="'editForm-' + ${address.id}" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px;">
+                            <h4 style="margin-bottom: 15px; color: #8b5cf6;">Adresi Düzenle</h4>
+                            <form th:action="@{/customer/profile/update-address}" method="post">
+                                <input type="hidden" name="userId" th:value="${user.id}">
+                                <input type="hidden" name="addressId" th:value="${address.id}">
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Adres Türü</label>
+                                        <select name="addressType" required>
+                                            <option value="Ev" th:selected="${address.addressType == 'Ev'}">🏠 Ev</option>
+                                            <option value="İş" th:selected="${address.addressType == 'İş'}">💼 İş</option>
+                                            <option value="Diğer" th:selected="${address.addressType == 'Diğer'}">📍 Diğer</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Cadde/Sokak</label>
+                                    <input type="text" name="street" th:value="${address.street}" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Şehir</label>
+                                        <input type="text" name="city" th:value="${address.city}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>İlçe</label>
+                                        <input type="text" name="district" th:value="${address.district}" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Posta Kodu</label>
+                                    <input type="text" name="postalCode" th:value="${address.postalCode}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Detaylı Adres</label>
+                                    <textarea name="openAddress" required style="min-height: 80px;" th:text="${address.openAddress}"></textarea>
+                                </div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="submit" class="btn-primary" style="padding: 10px 20px;">💾 Güncelle</button>
+                                    <button type="button" class="btn btn-secondary" 
+                                            th:onclick="'toggleEditForm(' + ${address.id} + ')'"
+                                            style="padding: 10px 20px;">İptal</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${user.addresses == null or user.addresses.size() == 0}" class="info-box">
+                ℹ️ Henüz kayıtlı bir adres yok. Siparişleriniz sırasında adres ekleyebilirsiniz.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEditForm(id) {
+            const form = document.getElementById('editForm-' + id);
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
